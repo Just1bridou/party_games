@@ -3,7 +3,8 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:projet_flutter_mds/elements/elements.dart';
 import 'package:projet_flutter_mds/models/player.dart';
-import 'package:projet_flutter_mds/server/provider.dart';
+import 'package:projet_flutter_mds/providers/provider.dart';
+import 'package:projet_flutter_mds/server/ws.dart';
 import 'package:provider/provider.dart';
 import "../../main.dart";
 
@@ -16,9 +17,14 @@ class JoinRoom extends StatefulWidget {
 
 class _JoinRoomState extends State<JoinRoom> {
   final TextEditingController codeController = TextEditingController();
+  late Store store;
+  late CustomWebSocketsState socket;
 
   @override
   void initState() {
+    store = Provider.of<Store>(context, listen: false);
+    socket = store.getSocket();
+
     socket.listen("savePlayer", (data) {
       Player player = Player.fromJson(data["player"]);
 

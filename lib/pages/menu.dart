@@ -6,7 +6,8 @@ import 'package:projet_flutter_mds/elements/elements.dart';
 import 'package:projet_flutter_mds/models/player.dart';
 import 'package:projet_flutter_mds/pages/login/join_room.dart';
 import 'package:projet_flutter_mds/pages/waiting_room.dart';
-import 'package:projet_flutter_mds/server/provider.dart';
+import 'package:projet_flutter_mds/providers/provider.dart';
+import 'package:projet_flutter_mds/server/ws.dart';
 import 'package:provider/provider.dart';
 import "../main.dart";
 
@@ -19,13 +20,18 @@ class Menu extends StatefulWidget {
 
 class _MenuState extends State<Menu> {
   final TextEditingController usernameController = TextEditingController();
+  late CustomWebSocketsState socket;
+  late Store store;
+
   final sockets = [];
   @override
   void initState() {
+    store = Provider.of<Store>(context, listen: false);
+    socket = store.getSocket();
+
     sockets.add(socket.listen("savePlayer", (data) {
       Player player = Player.fromJson(data["player"]);
-
-      Provider.of<Store>(context, listen: false).setPlayer(player);
+      store.setPlayer(player);
     }));
 
     sockets.add(socket.listen("ROOM_create", (data) {
@@ -36,17 +42,13 @@ class _MenuState extends State<Menu> {
 
   @override
   void dispose() {
-    for (var payload in sockets) {
-      socket.close(payload);
-    }
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     void errorNickname() {
-      Provider.of<Store>(context, listen: false)
-          .setUsernameError("Pseudo incorrect");
+      store.setUsernameError("Pseudo incorrect");
     }
 
     bool checkInput(TextEditingController controller) {
@@ -66,8 +68,7 @@ class _MenuState extends State<Menu> {
 
     void joinGame() {
       if (checkInput(usernameController)) {
-        Provider.of<Store>(context, listen: false)
-            .setTemporaryName(usernameController.text);
+        store.setTemporaryName(usernameController.text);
         Navigator.pushNamed(context, '/joinRoom');
       } else {
         errorNickname();

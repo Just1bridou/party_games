@@ -3,6 +3,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:projet_flutter_mds/models/player.dart';
+import 'package:projet_flutter_mds/providers/provider.dart';
+import 'package:projet_flutter_mds/providers/wsstate.dart';
+import 'package:provider/provider.dart';
 
 class StylePage extends StatelessWidget {
   StylePage(
@@ -32,22 +35,33 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppBar(
-      backgroundColor: Color(0xFFF9F9FF),
-      elevation: 6,
-      centerTitle: true,
-      title: Text(title.toUpperCase(),
-          style: GoogleFonts.robotoCondensed(
-              textStyle: const TextStyle(color: Color(0xFF3F4053)),
-              fontWeight: FontWeight.w900,
-              fontSize: 20.0)),
-      leading: backArrow
-          ? BackButton(
-              onPressed: () => {Navigator.pop(context)},
-              color: Colors.black87,
-            )
-          : Container(),
-    );
+    return Consumer<WSState>(builder: (context, value, child) {
+      return AppBar(
+        backgroundColor: Color(0xFFF9F9FF),
+        elevation: 6,
+        centerTitle: true,
+        title: Text(title.toUpperCase(),
+            style: GoogleFonts.robotoCondensed(
+                textStyle: const TextStyle(color: Color(0xFF3F4053)),
+                fontWeight: FontWeight.w900,
+                fontSize: 20.0)),
+        leading: value.getStatus() == "error"
+            ? IconButton(
+                onPressed: () {
+                  Provider.of<WSState>(context, listen: false)
+                      .setStatus("loading");
+
+                  Provider.of<Store>(context, listen: false).socket.connect();
+                },
+                icon: Icon(Icons.replay, color: Colors.black87))
+            : backArrow
+                ? BackButton(
+                    onPressed: () => {Navigator.pop(context)},
+                    color: Colors.black87,
+                  )
+                : Container(),
+      );
+    });
   }
 
   @override
@@ -228,9 +242,15 @@ class PlayerContainer extends StatelessWidget {
 }
 
 class MiniGamePayload {
-  MiniGamePayload({required this.name, required this.code});
+  MiniGamePayload(
+      {required this.name,
+      required this.code,
+      required this.players,
+      required this.minPlayers});
   final String name;
   final String code;
+  final int players;
+  final int minPlayers;
 }
 
 class MiniGameContainer extends StatelessWidget {
@@ -239,15 +259,161 @@ class MiniGameContainer extends StatelessWidget {
   final MiniGamePayload payload;
   final Function onTap;
 
+  optimalPlayers() {
+    return payload.players >= payload.minPlayers;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 0),
       child: GestureDetector(
-        onTap: () => {onTap()},
+        onTap: () => {optimalPlayers() ? onTap() : () {}},
+        child: Column(children: [
+          Container(
+              decoration: BoxDecoration(
+                  color: optimalPlayers()
+                      ? Color(0xFF2EFF0FF)
+                      : Color.fromARGB(255, 224, 84, 84),
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: const [
+                    BoxShadow(
+                      offset: Offset(0, 0),
+                      spreadRadius: 3,
+                      blurRadius: 10,
+                      color: Color(0xFFA9ABC3),
+                    )
+                  ]),
+              width: MediaQuery.of(context).size.width,
+              child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 20, horizontal: 30),
+                  child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(payload.name,
+                          style: GoogleFonts.robotoCondensed(
+                              textStyle:
+                                  const TextStyle(color: Color(0xFF3F4053)),
+                              fontWeight: FontWeight.w700,
+                              fontSize: 20.0))))),
+          optimalPlayers()
+              ? Container()
+              : Text("Pas assez de joueurs",
+                  style: GoogleFonts.robotoCondensed(
+                      textStyle: const TextStyle(
+                          color: Color.fromARGB(255, 209, 21, 21)),
+                      fontWeight: FontWeight.w700,
+                      fontSize: 15.0))
+        ]),
+      ),
+    );
+  }
+}
+
+class CustomContainer extends StatelessWidget {
+  const CustomContainer({super.key, required this.child});
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 0),
+      child: Container(
+          decoration: BoxDecoration(
+              color: Color(0xFF2EFF0FF),
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: const [
+                BoxShadow(
+                  offset: Offset(0, 0),
+                  spreadRadius: 3,
+                  blurRadius: 10,
+                  color: Color(0xFFA9ABC3),
+                )
+              ]),
+          // width: MediaQuery.of(context).size.width,
+          child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 30),
+              child: Align(alignment: Alignment.centerLeft, child: child))),
+    );
+  }
+}
+
+class CustomContainerText extends StatelessWidget {
+  const CustomContainerText({super.key, required this.text});
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 0),
+      child: Container(
+          decoration: BoxDecoration(
+              color: Color(0xFF2EFF0FF),
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: const [
+                BoxShadow(
+                  offset: Offset(0, 0),
+                  spreadRadius: 3,
+                  blurRadius: 10,
+                  color: Color(0xFFA9ABC3),
+                )
+              ]),
+          // width: MediaQuery.of(context).size.width,
+          child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 30),
+              child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(text,
+                      style: GoogleFonts.robotoCondensed(
+                          textStyle: const TextStyle(color: Color(0xFF3F4053)),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 20.0))))),
+    );
+  }
+}
+
+class PrettyText extends StatefulWidget {
+  const PrettyText({super.key, required this.text});
+  final String text;
+
+  @override
+  State<PrettyText> createState() => _PrettyTextState();
+}
+
+class _PrettyTextState extends State<PrettyText> {
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+        alignment: Alignment.centerLeft,
+        child: Text(widget.text,
+            style: GoogleFonts.robotoCondensed(
+                textStyle: const TextStyle(color: Color(0xFF3F4053)),
+                fontWeight: FontWeight.w700,
+                fontSize: 20.0)));
+  }
+}
+
+class ActionButton extends StatelessWidget {
+  const ActionButton(
+      {super.key,
+      required this.icon,
+      required this.color,
+      required this.onTap});
+  final Icon icon;
+  final Color color;
+  final Function onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        onTap();
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 0),
         child: Container(
             decoration: BoxDecoration(
-                color: Color(0xFF2EFF0FF),
+                color: color,
                 borderRadius: BorderRadius.circular(10),
                 boxShadow: const [
                   BoxShadow(
@@ -257,18 +423,11 @@ class MiniGameContainer extends StatelessWidget {
                     color: Color(0xFFA9ABC3),
                   )
                 ]),
-            width: MediaQuery.of(context).size.width,
+            //width: MediaQuery.of(context).size.width,
             child: Padding(
                 padding:
-                    const EdgeInsets.symmetric(vertical: 20, horizontal: 30),
-                child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(payload.name,
-                        style: GoogleFonts.robotoCondensed(
-                            textStyle:
-                                const TextStyle(color: Color(0xFF3F4053)),
-                            fontWeight: FontWeight.w700,
-                            fontSize: 20.0))))),
+                    const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                child: Align(alignment: Alignment.centerLeft, child: icon))),
       ),
     );
   }

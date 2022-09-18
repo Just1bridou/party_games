@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:projet_flutter_mds/main.dart';
-import 'package:projet_flutter_mds/server/provider.dart';
+import 'package:projet_flutter_mds/elements/elements.dart';
+import 'package:projet_flutter_mds/providers/provider.dart';
+import 'package:projet_flutter_mds/providers/provider.dart';
+import 'package:projet_flutter_mds/server/ws.dart';
 import 'package:provider/provider.dart';
-import '../../elements/elements.dart';
 
 class Games extends StatefulWidget {
   const Games({super.key});
@@ -13,24 +14,21 @@ class Games extends StatefulWidget {
 
 class _GamesState extends State<Games> {
   List<dynamic> games = <dynamic>[
-    {"name": "Jokes de papa", "code": "jokes"}
+    {"name": "Jokes de papa", "code": "jokes", "minPlayers": 2}
   ];
+  late CustomWebSocketsState socket;
 
   var sockets = [];
 
   @override
   void initState() {
-    sockets.add(socket.listen("START_GAME", (data) {
-      print(data);
-    }));
+    socket = Provider.of<Store>(context, listen: false).getSocket();
+
     super.initState();
   }
 
   @override
   void dispose() {
-    for (var payload in sockets) {
-      socket.close(payload);
-    }
     super.dispose();
   }
 
@@ -60,20 +58,22 @@ class _GamesState extends State<Games> {
         itemBuilder: (BuildContext context, int index) {
           return MiniGameContainer(
             payload: MiniGamePayload(
-                name: games[index]["name"], code: games[index]["code"]),
+                name: games[index]["name"],
+                code: games[index]["code"],
+                players: value.getPlayersList().length,
+                minPlayers: games[index]["minPlayers"] as int),
             onTap: () => {
-              socket.sendMessage('START_GAME', {
-                "ROOM_code": value.getPlayer().code,
-                "GAME_code": games[index]["code"]
-              })
+              if (value.getPlayer().admin)
+                {
+                  socket.sendMessage('START_GAME', {
+                    "ROOM_code": value.getPlayer().code,
+                    "GAME_code": games[index]["code"]
+                  })
+                }
             },
           );
         },
       );
     });
   }
-
-  /* void goToGames() {
-    Navigator.pushReplacementNamed(context, '/games');
-  }*/
 }

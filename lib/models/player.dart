@@ -1,5 +1,5 @@
 class Player {
-  //String id;
+  String id;
   String name;
   String code;
   bool admin;
@@ -9,9 +9,15 @@ class Player {
       {required this.name,
       required this.code,
       required this.admin,
-      /* this.id, */ required this.avatar});
+      required this.id,
+      required this.avatar});
+
+  equals(Player player) {
+    return id == player.id;
+  }
 
   factory Player.fromJson(Map<String, dynamic> json) => Player(
+      id: json["id"],
       name: json["name"],
       code: json["code"],
       admin: json["admin"],

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:projet_flutter_mds/elements/elements.dart';
 import 'package:projet_flutter_mds/models/player.dart';
-import 'package:projet_flutter_mds/server/provider.dart';
+import 'package:projet_flutter_mds/providers/provider.dart';
+import 'package:projet_flutter_mds/server/ws.dart';
 import 'package:provider/provider.dart';
 import '../main.dart';
 
@@ -13,20 +14,20 @@ class WaitingRoom extends StatefulWidget {
 }
 
 class _WaitingRoomState extends State<WaitingRoom> {
+  late CustomWebSocketsState socket;
   List<dynamic> players = <dynamic>[];
 
   var sockets = [];
 
-  void refreshPlayersList(String code) {
-    socket.sendMessage('refreshPlayersList', {"code": code});
+  @override
+  void initState() {
+    Store store = Provider.of<Store>(context, listen: false);
+    socket = store.getSocket();
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    Player player = Provider.of<Store>(context).getPlayer();
-
-    refreshPlayersList(player.code);
-
     return StylePage(
         title: "En attende de joueurs",
         child: Consumer<Store>(builder: (context, value, child) {
@@ -53,12 +54,12 @@ class _WaitingRoomState extends State<WaitingRoom> {
         }));
   }
 
-  Widget buildPlayerList(List<dynamic> players) {
+  Widget buildPlayerList(List<Player> players) {
     return ListView.builder(
       clipBehavior: Clip.none,
       itemCount: players.length,
       itemBuilder: (BuildContext context, int index) {
-        return PlayerContainer(player: Player.fromJson(players[index]));
+        return PlayerContainer(player: players[index]);
       },
     );
   }
