@@ -15,9 +15,9 @@ import 'dart:convert';
 
 class Config {
   // For emulator
-  // String ip = "10.0.2.2";
+  String ip = "10.0.2.2";
   // For localhost
-  String ip = "192.168.1.25";
+  // String ip = "192.168.1.25";
   String port = "3001";
 }
 

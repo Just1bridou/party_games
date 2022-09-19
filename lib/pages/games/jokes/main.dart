@@ -8,13 +8,16 @@ import 'package:projet_flutter_mds/models/joke.dart';
 import 'package:projet_flutter_mds/models/player.dart';
 import 'package:projet_flutter_mds/pages/games/jokes/jokes_server.dart';
 import 'package:projet_flutter_mds/providers/provider.dart';
+import 'package:projet_flutter_mds/server/ws.dart';
 import 'package:provider/provider.dart';
 
 JokesServer server = JokesServer();
 
 class Jokes extends StatefulWidget {
-  const Jokes({super.key, required this.data});
+  Jokes({super.key, required this.data});
   final data;
+
+  String GAME_code = "jokes";
 
   @override
   State<Jokes> createState() => _JokesState();
@@ -82,7 +85,7 @@ class _JokesState extends State<Jokes> {
                       ),
                       color: const Color(0xFF2638DC),
                       onTap: () {
-                        print("Action leaderboard");
+                        switchTurn(value.getSocket(), value.getPlayer().code);
                       }),
                 ),
               ],
@@ -142,6 +145,14 @@ class _JokesState extends State<Jokes> {
               ],
             )
           ]));
+    });
+  }
+
+  switchTurn(CustomWebSocketsState socket, String code) {
+    socket.sendMessage('GAME_ACTION', {
+      'ROOM_code': code,
+      'GAME_code': widget.GAME_code,
+      "GAME_action": 'switch'
     });
   }
 
