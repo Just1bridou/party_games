@@ -22,4 +22,14 @@ class Player {
       code: json["code"],
       admin: json["admin"],
       avatar: json["avatar"]);
+
+  Map toJson() {
+    return {
+      "id": id,
+      "name": name,
+      "code": code,
+      "admin": admin,
+      "avatar": avatar
+    };
+  }
 }

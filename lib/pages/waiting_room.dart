@@ -35,6 +35,7 @@ class _WaitingRoomState extends State<WaitingRoom> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             mainAxisSize: MainAxisSize.max,
             children: <Widget>[
+              PrettyText(text: "Code :" + value.getPlayer().code),
               Expanded(
                 child: buildPlayerList(value.getPlayersList()),
               ),

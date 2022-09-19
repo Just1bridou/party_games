@@ -1,7 +1,11 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:noise_meter/noise_meter.dart';
 import 'package:projet_flutter_mds/elements/elements.dart';
 import 'package:projet_flutter_mds/models/extra_player.dart';
 import 'package:projet_flutter_mds/models/joke.dart';
@@ -27,18 +31,28 @@ class _JokesState extends State<Jokes> {
   List<ExtraPlayer> players = [];
   late Store store;
   ExtraPlayer? playerTurn;
+  Color microphoneColor = Color.fromARGB(255, 121, 201, 119);
+  String loose = "Ne pas rire";
 
-  @override
-  void initState() {
-    store = Provider.of<Store>(context, listen: false);
-    var jsonPlayers = widget.data["players"];
+  bool isRecording = false;
+  late StreamSubscription<NoiseReading>? noiseSubscription;
+  late NoiseMeter noiseMeter;
 
+  void reset() {
+    setState(() {
+      players = [];
+      playerTurn = null;
+      microphoneColor = Color.fromARGB(255, 121, 201, 119);
+      loose = "Ne pas rire";
+    });
+  }
+
+  void parsePlayers(var jsonPlayers) {
     for (var player in jsonPlayers) {
-      ExtraPlayer ePlayer =
-          ExtraPlayer(Player.fromJson(player), {'speaker': player['speaker']});
+      ExtraPlayer ePlayer = ExtraPlayer(Player.fromJson(player),
+          {'speaker': player['speaker'], "score": player['score']});
 
       if (ePlayer.player.id == store.getPlayer().id) {
-        //ePlayer.extra["isMe"] = true;
         store.setExtraPlayer(ePlayer);
       }
 
@@ -48,15 +62,39 @@ class _JokesState extends State<Jokes> {
 
       players.add(ePlayer);
     }
+  }
 
-    // jsonPlayers.map((e) {
-    //   print(e);
-    //   Player p = Player.fromJson(e);
-    //   print(p);
-    //   //ExtraPlayer(Player.fromJson(e), [e["speaker"]]);
-    // });
-    //print(widget.data);
-    print(players);
+  @override
+  void initState() {
+    noiseMeter = new NoiseMeter(onError);
+    store = Provider.of<Store>(context, listen: false);
+    var jsonPlayers = widget.data["players"];
+
+    parsePlayers(jsonPlayers);
+
+    store.socket.listen("GAME_action", (data) {
+      if (data['game'] != widget.GAME_code) return;
+      switch (data["data"]["action"]) {
+        case 'newTurn':
+          reset();
+          parsePlayers(data["data"]["players"]);
+          if (!store.getPlayer().equals(playerTurn!.player)) {
+            recordMicrophone();
+          }
+          break;
+
+        case 'stopTurn':
+          stopRecorder();
+          loose = "Fin de la manche";
+          microphoneColor = Color.fromARGB(255, 196, 196, 196);
+          break;
+      }
+    });
+
+    if (!store.getPlayer().equals(playerTurn!.player)) {
+      recordMicrophone();
+    }
+
     super.initState();
   }
 
@@ -85,7 +123,7 @@ class _JokesState extends State<Jokes> {
                       ),
                       color: const Color(0xFF2638DC),
                       onTap: () {
-                        switchTurn(value.getSocket(), value.getPlayer().code);
+                        leaderBoardModal(players);
                       }),
                 ),
               ],
@@ -97,10 +135,11 @@ class _JokesState extends State<Jokes> {
                         (BuildContext context, AsyncSnapshot<Joke> snapshot) {
                       switch (snapshot.connectionState) {
                         case ConnectionState.waiting:
-                          return const Center(
+                          return const Expanded(
+                              child: Center(
                             child:
                                 CircularProgressIndicator(color: Colors.black),
-                          );
+                          ));
                         default:
                           if (snapshot.hasError && snapshot.data != null) {
                             return Text('Error: ${snapshot.error}');
@@ -123,11 +162,16 @@ class _JokesState extends State<Jokes> {
                             ),
                             color: const Color(0xFF2638DC),
                             onTap: () {
-                              print("Joueur suivant");
+                              switchTurn(
+                                  value.getSocket(), value.getPlayer().code);
                             }),
                       )
                     : Container(),
-                const Expanded(child: CustomContainerText(text: "A vous")),
+                Expanded(
+                    child: CustomContainerText(
+                        text: value.getPlayer().equals(playerTurn!.player)
+                            ? "A vous de lire"
+                            : loose)),
                 !value.getPlayer().equals(playerTurn!.player)
                     ? Padding(
                         padding: EdgeInsets.only(left: 10),
@@ -136,16 +180,117 @@ class _JokesState extends State<Jokes> {
                               Icons.mic_rounded,
                               color: Colors.black87,
                             ),
-                            color: Color(0xFFBFBFBF),
-                            onTap: () {
-                              print("pas spécialement un bouton lui");
-                            }),
+                            color: microphoneColor,
+                            onTap: () {}),
                       )
                     : Container(),
               ],
             )
           ]));
     });
+  }
+
+  leaderBoardModal(List<ExtraPlayer> players) {
+    showModalBottomSheet(
+        backgroundColor: Colors.transparent,
+        context: context,
+        builder: (context) {
+          return Container(
+            margin: EdgeInsets.all(30),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Padding(
+                padding: EdgeInsets.all(30),
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    const PrettyText(text: "Classement"),
+                    Expanded(
+                        child: ListView.builder(
+                            shrinkWrap: true,
+                            padding: const EdgeInsets.only(bottom: 8),
+                            itemCount: players.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return Container(
+                                height: 50,
+                                child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(players[index].player.name),
+                                      Text(players[index]
+                                              .extra['score']
+                                              .toString() ??
+                                          "0")
+                                    ]),
+                              );
+                            })),
+                    PrimaryButton(
+                        text: "Retour",
+                        onPressed: () {
+                          Navigator.pop(context);
+                        }),
+                  ],
+                )),
+          );
+        });
+  }
+
+  void recordMicrophone() async {
+    try {
+      stopRecorder();
+      noiseSubscription = noiseMeter.noiseStream.listen(onData);
+    } catch (exception) {
+      print(exception);
+    }
+  }
+
+  void onData(NoiseReading noiseReading) {
+    setState(() {
+      if (!this.isRecording) {
+        isRecording = true;
+      }
+    });
+
+    //print(noiseReading.toString());
+    if (noiseReading.meanDecibel > 50) {
+      setState(() {
+        microphoneColor = Color.fromARGB(255, 231, 63, 63);
+        loose = "Perdu !";
+      });
+
+      stopRecorder();
+
+      store.getSocket().sendMessage('GAME_ACTION', {
+        'ROOM_code': store.getPlayer().code,
+        'GAME_code': widget.GAME_code,
+        "GAME_action": 'stopTurn',
+        'reason': "loose",
+        'loose_id': store.getPlayer().id,
+        'players': jsonEncode(players)
+      });
+    }
+  }
+
+  void onError(Object error) {
+    print(error.toString());
+    isRecording = false;
+  }
+
+  void stopRecorder() async {
+    try {
+      if (noiseSubscription != null) {
+        noiseSubscription?.cancel();
+        noiseSubscription = null;
+      }
+      setState(() {
+        isRecording = false;
+      });
+    } catch (err) {
+      print('stopRecorder error: $err');
+    }
   }
 
   switchTurn(CustomWebSocketsState socket, String code) {
