@@ -1,6 +1,7 @@
 // ignore_for_file: must_be_immutable
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:projet_flutter_mds/models/player.dart';
 import 'package:projet_flutter_mds/providers/provider.dart';
@@ -119,7 +120,10 @@ class PrimaryButton extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 0),
       child: GestureDetector(
-        onTap: () => {onPressed()},
+        onTap: () {
+          HapticFeedback.mediumImpact();
+          onPressed();
+        },
         child: Container(
             decoration: BoxDecoration(
                 color: Color(0xFF2638DC),
@@ -159,7 +163,10 @@ class Secondarybutton extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 0),
       child: GestureDetector(
-        onTap: () => {onPressed()},
+        onTap: () {
+          HapticFeedback.mediumImpact();
+          onPressed();
+        },
         child: Container(
             decoration: BoxDecoration(
                 color: Colors.white,
@@ -430,5 +437,42 @@ class ActionButton extends StatelessWidget {
                 child: Align(alignment: Alignment.centerLeft, child: icon))),
       ),
     );
+  }
+}
+
+class CustomCheckbox extends StatefulWidget {
+  CustomCheckbox({super.key, required this.active, required this.onTap});
+  bool active;
+  Function onTap;
+
+  @override
+  State<CustomCheckbox> createState() => _CustomCheckboxState();
+}
+
+class _CustomCheckboxState extends State<CustomCheckbox> {
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+        onTap: () {
+          HapticFeedback.mediumImpact();
+          SystemSound.play(SystemSoundType.click);
+          widget.onTap();
+          setState(() {
+            widget.active = !widget.active;
+          });
+        },
+        child: Container(
+          decoration: BoxDecoration(
+              border: Border.all(color: Colors.black, width: 2),
+              borderRadius: BorderRadius.circular(10)),
+          height: 30,
+          width: 30,
+          child: Container(
+            margin: EdgeInsets.all(2),
+            decoration: BoxDecoration(
+                color: widget.active ? Color(0xFF2638DC) : Colors.transparent,
+                borderRadius: BorderRadius.circular(8)),
+          ),
+        ));
   }
 }

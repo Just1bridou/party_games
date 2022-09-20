@@ -29,6 +29,7 @@ class Jokes extends StatefulWidget {
 
 class _JokesState extends State<Jokes> {
   List<ExtraPlayer> players = [];
+  Map<String, dynamic> options = {};
   late Store store;
   ExtraPlayer? playerTurn;
   Color microphoneColor = Color.fromARGB(255, 121, 201, 119);
@@ -64,12 +65,21 @@ class _JokesState extends State<Jokes> {
     }
   }
 
+  void parseOptions(var myOptions) {
+    List<String> keys = myOptions.keys.toList();
+    for (var key in keys) {
+      options[key] = myOptions[key];
+    }
+  }
+
   @override
   void initState() {
     noiseMeter = new NoiseMeter(onError);
     store = Provider.of<Store>(context, listen: false);
     var jsonPlayers = widget.data["players"];
+    var options = widget.data["options"];
 
+    parseOptions(options);
     parsePlayers(jsonPlayers);
 
     store.socket.listen("GAME_action", (data) {
@@ -78,7 +88,8 @@ class _JokesState extends State<Jokes> {
         case 'newTurn':
           reset();
           parsePlayers(data["data"]["players"]);
-          if (!store.getPlayer().equals(playerTurn!.player)) {
+          if (!store.getPlayer().equals(playerTurn!.player) &&
+              options['jokes_mic'] == true) {
             recordMicrophone();
           }
           break;
@@ -91,7 +102,8 @@ class _JokesState extends State<Jokes> {
       }
     });
 
-    if (!store.getPlayer().equals(playerTurn!.player)) {
+    if (!store.getPlayer().equals(playerTurn!.player) &&
+        options['jokes_mic'] == true) {
       recordMicrophone();
     }
 
@@ -172,7 +184,8 @@ class _JokesState extends State<Jokes> {
                         text: value.getPlayer().equals(playerTurn!.player)
                             ? "A vous de lire"
                             : loose)),
-                !value.getPlayer().equals(playerTurn!.player)
+                !value.getPlayer().equals(playerTurn!.player) &&
+                        options['jokes_mic'] == true
                     ? Padding(
                         padding: EdgeInsets.only(left: 10),
                         child: ActionButton(
