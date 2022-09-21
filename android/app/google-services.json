@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "299457613241",
+    "project_id": "partygames-c388b",
+    "storage_bucket": "partygames-c388b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:299457613241:android:f8a6d25afa691a2f51fa68",
+        "android_client_info": {
+          "package_name": "com.just1.partygames"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "299457613241-4c18cdti57v3ofv9ta27qd32sqpn1p02.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAcqa905moUMhoaaRMddl-tMDmKC2USOx0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "299457613241-4c18cdti57v3ofv9ta27qd32sqpn1p02.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
