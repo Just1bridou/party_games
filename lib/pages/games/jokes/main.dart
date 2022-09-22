@@ -119,6 +119,7 @@ class _JokesState extends State<Jokes> {
   Widget build(BuildContext context) {
     return Consumer<Store>(builder: (context, value, child) {
       return StylePage(
+          routeName: "games",
           title: "Jokes de papa",
           child: Column(children: [
             Row(
@@ -142,7 +143,7 @@ class _JokesState extends State<Jokes> {
             ),
             value.getPlayer().equals(playerTurn!.player)
                 ? FutureBuilder<Joke>(
-                    future: server.getRandomJoke(),
+                    future: server.getRandomJoke(options['jokes_dark']),
                     builder:
                         (BuildContext context, AsyncSnapshot<Joke> snapshot) {
                       switch (snapshot.connectionState) {

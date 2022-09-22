@@ -13,15 +13,18 @@ class StylePage extends StatelessWidget {
       {super.key,
       required this.child,
       required this.title,
+      required this.routeName,
       this.backArrow = false});
   final Widget child;
   final String title;
+  final String routeName;
   bool backArrow;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(title: title, backArrow: backArrow),
+      appBar: CustomAppBar(
+          routeName: routeName, title: title, backArrow: backArrow),
       body: Container(
           decoration: BoxDecoration(color: Color(0xFFF9F9FF)),
           child: Padding(padding: const EdgeInsets.all(20), child: child)),
@@ -30,12 +33,54 @@ class StylePage extends StatelessWidget {
 }
 
 class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
-  CustomAppBar({super.key, required this.title, this.backArrow = false});
+  CustomAppBar(
+      {super.key,
+      required this.title,
+      required this.routeName,
+      this.backArrow = false});
   final String title;
   bool backArrow;
+  final String routeName;
 
   @override
   Widget build(BuildContext context) {
+    leaderBoardModal() {
+      showModalBottomSheet(
+          backgroundColor: Colors.transparent,
+          context: context,
+          builder: (context) {
+            return Container(
+              margin: EdgeInsets.all(30),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Padding(
+                  padding: EdgeInsets.all(30),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      const Expanded(
+                        child: PrettyText(
+                            text:
+                                "Souhaitez vous retourner à la salle d'attente ?"),
+                      ),
+                      PrimaryButton(
+                          text: "Oui",
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/waitingRoom');
+                          }),
+                      Secondarybutton(
+                          text: "Non",
+                          onPressed: () {
+                            Navigator.pop(context);
+                          }),
+                    ],
+                  )),
+            );
+          });
+    }
+
     return Consumer<WSState>(builder: (context, value, child) {
       return AppBar(
         backgroundColor: Color(0xFFF9F9FF),
@@ -60,7 +105,14 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
                     onPressed: () => {Navigator.pop(context)},
                     color: Colors.black87,
                   )
-                : Container(),
+                : routeName.contains("games")
+                    ? IconButton(
+                        onPressed: () {
+                          print("back to wr");
+                          leaderBoardModal();
+                        },
+                        icon: Icon(Icons.arrow_back, color: Colors.black87))
+                    : Container(),
       );
     });
   }

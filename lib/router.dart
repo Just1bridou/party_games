@@ -20,6 +20,7 @@ class _CustomRouterState extends State<CustomRouter> {
     return Consumer<WSState>(
       builder: (context, value, child) {
         return StylePage(
+            routeName: ModalRoute.of(context)!.settings.name!,
             title: title(value.getStatus()),
             child: Align(
               alignment: Alignment.bottomCenter,
@@ -44,11 +45,10 @@ class _CustomRouterState extends State<CustomRouter> {
 
   router(String value) {
     if (value == "connected") {
-      return PrimaryButton(
-          text: "Jouer",
-          onPressed: () {
-            Navigator.pushReplacementNamed(context, '/menu');
-          });
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacementNamed(context, '/menu');
+      });
+      return const Text("Connecté !");
     } else if (value == "error") {
       return const Text("Impossible de se connecter au serveur");
     } else {

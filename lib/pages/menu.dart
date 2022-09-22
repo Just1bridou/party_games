@@ -76,6 +76,7 @@ class _MenuState extends State<Menu> {
     }
 
     return StylePage(
+        routeName: ModalRoute.of(context)!.settings.name!,
         title: 'Créer ou rejoindre une partie',
         child: Consumer<Store>(builder: (context, value, child) {
           return Column(

@@ -29,6 +29,7 @@ class _WaitingRoomState extends State<WaitingRoom> {
   @override
   Widget build(BuildContext context) {
     return StylePage(
+        routeName: ModalRoute.of(context)!.settings.name!,
         title: "En attende de joueurs",
         child: Consumer<Store>(builder: (context, value, child) {
           return Column(

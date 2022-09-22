@@ -63,6 +63,7 @@ class _JoinRoomState extends State<JoinRoom> {
   @override
   Widget build(BuildContext context) {
     return StylePage(
+        routeName: ModalRoute.of(context)!.settings.name!,
         backArrow: true,
         title: 'Rejoindre une partie',
         child: Consumer<Store>(builder: (context, value, child) {

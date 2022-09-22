@@ -38,6 +38,7 @@ class _GamesState extends State<Games> {
   @override
   Widget build(BuildContext context) {
     return StylePage(
+        routeName: ModalRoute.of(context)!.settings.name!,
         title: "Choix du mini-jeu",
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -127,13 +128,13 @@ class _GamesState extends State<Games> {
   }
 
   gamesOptions(var game) {
-    print(game);
     bool jokes_mic = true;
+    bool jokes_dark = true;
 
     switch (game["code"]) {
       case "jokes":
         setOption("jokes_mic", true);
-        setOption("tt", "t");
+        setOption("jokes_dark", true);
         return Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
@@ -148,12 +149,31 @@ class _GamesState extends State<Games> {
                     Text('(Detection de la voix)'),
                   ],
                 ),
-                //PrettyText(text: "[]")
                 CustomCheckbox(
                   active: jokes_mic,
                   onTap: () {
                     jokes_mic = !jokes_mic;
                     setOption("jokes_mic", jokes_mic);
+                  },
+                )
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    PrettyText(text: "Dark ?"),
+                    Text('(Questions humour noir)'),
+                  ],
+                ),
+                CustomCheckbox(
+                  active: jokes_dark,
+                  onTap: () {
+                    jokes_dark = !jokes_dark;
+                    setOption("jokes_dark", jokes_dark);
                   },
                 )
               ],
