@@ -17,8 +17,11 @@ class Config {
   // For emulator
   // String ip = "10.0.2.2";
   // For localhost
-  String ip = "192.168.1.25";
-  String port = "3001";
+  // String ip = "192.168.1.25";
+  //String ip = "172.24.232.115";
+  // String port = "3001";
+  String ip = "51.210.104.99";
+  String port = "2122";
 }
 
 class CustomWebSockets extends StatefulWidget {

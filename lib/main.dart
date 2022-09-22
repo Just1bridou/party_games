@@ -35,6 +35,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       navigatorKey: navigatorKey,
       title: 'Party Games',
+      debugShowCheckedModeBanner: false,
       routes: {
         '/': (_) => const CustomRouter(),
         '/menu': (_) => const Menu(),
