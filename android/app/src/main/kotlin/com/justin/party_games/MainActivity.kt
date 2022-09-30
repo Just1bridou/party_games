@@ -1,4 +1,4 @@
-package com.example.projet_flutter_mds
+package com.justin.party_games
 
 import io.flutter.embedding.android.FlutterActivity
 

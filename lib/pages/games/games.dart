@@ -15,7 +15,8 @@ class Games extends StatefulWidget {
 
 class _GamesState extends State<Games> {
   List<dynamic> games = <dynamic>[
-    {"name": "Jokes de papa", "code": "jokes", "minPlayers": 2}
+    {"name": "Jokes de papa", "code": "jokes", "minPlayers": 2},
+    {"name": "Jeu de cartes", "code": "cards_picker", "minPlayers": 1}
   ];
   late CustomWebSocketsState socket;
 

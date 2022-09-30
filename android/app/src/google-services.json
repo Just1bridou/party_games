@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:299457613241:android:f8a6d25afa691a2f51fa68",
+        "mobilesdk_app_id": "1:299457613241:android:fb9968d93895e09751fa68",
         "android_client_info": {
-          "package_name": "com.just1.partygames"
+          "package_name": "com.justin.party_games"
         }
       },
       "oauth_client": [

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:projet_flutter_mds/pages/games/cards_picker/main.dart';
 import 'package:projet_flutter_mds/pages/games/games.dart';
 import 'package:projet_flutter_mds/pages/games/jokes/main.dart';
 import 'package:projet_flutter_mds/pages/waiting_room.dart';
@@ -49,6 +50,13 @@ class MyApp extends StatelessWidget {
           final args = settings.arguments;
           return MaterialPageRoute(
               builder: (_) => Jokes(
+                    data: args,
+                  ));
+        }
+        if (settings.name == '/games/cards_picker') {
+          final args = settings.arguments;
+          return MaterialPageRoute(
+              builder: (_) => CardsPicker(
                     data: args,
                   ));
         }

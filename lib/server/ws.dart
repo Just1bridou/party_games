@@ -19,9 +19,12 @@ class Config {
   // For localhost
   // String ip = "192.168.1.25";
   //String ip = "172.24.232.115";
+  // String ip = "10.24.130.199";
   // String port = "3001";
   String ip = "51.210.104.99";
   String port = "2122";
+  String expressIP = "51.210.104.99";
+  String expressPort = "2121";
 }
 
 class CustomWebSockets extends StatefulWidget {
