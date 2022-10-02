@@ -99,7 +99,7 @@ class _GamesState extends State<Games> {
                 child: Column(
                   mainAxisSize: MainAxisSize.max,
                   children: [
-                    const PrettyText(text: "Options de jeu"),
+                    PrettyText(text: "Options de jeu"),
                     Expanded(
                         child: Padding(
                       padding: EdgeInsets.only(top: 20),

@@ -11,7 +11,6 @@ class Store with ChangeNotifier {
   String codeError = "";
   List<Player> playersList = [];
   CustomWebSocketsState socket = CustomWebSocketsState();
-  BuildContext? nContext;
   ExtraPlayer ePlayer = ExtraPlayer(
       Player(id: "", name: "", code: "", admin: false, avatar: ""), {});
 
@@ -22,14 +21,6 @@ class Store with ChangeNotifier {
 
   ExtraPlayer getExtraPlayer() {
     return ePlayer;
-  }
-
-  void setNContext(BuildContext nContext) {
-    this.nContext = nContext;
-  }
-
-  BuildContext getNContext() {
-    return nContext!;
   }
 
   void setSocket(CustomWebSocketsState socket) {

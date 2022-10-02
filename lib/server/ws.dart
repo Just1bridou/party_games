@@ -18,7 +18,7 @@ class Config {
   // String ip = "10.0.2.2";
   // For localhost
   // String ip = "192.168.1.25";
-  //String ip = "172.24.232.115";
+  // String ip = "172.24.232.115";
   // String ip = "10.24.130.199";
   // String port = "3001";
   String ip = "51.210.104.99";

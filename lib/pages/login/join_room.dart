@@ -6,6 +6,7 @@ import 'package:projet_flutter_mds/models/player.dart';
 import 'package:projet_flutter_mds/providers/provider.dart';
 import 'package:projet_flutter_mds/server/ws.dart';
 import 'package:provider/provider.dart';
+import 'package:qr_code_scanner/qr_code_scanner.dart';
 import "../../main.dart";
 
 class JoinRoom extends StatefulWidget {
@@ -19,6 +20,10 @@ class _JoinRoomState extends State<JoinRoom> {
   final TextEditingController codeController = TextEditingController();
   late Store store;
   late CustomWebSocketsState socket;
+  final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
+  Barcode? result;
+  QRViewController? controller;
+  bool qrCodeDetected = false;
 
   @override
   void initState() {
@@ -62,6 +67,57 @@ class _JoinRoomState extends State<JoinRoom> {
 
   @override
   Widget build(BuildContext context) {
+    void detectQrCode(QRViewController controller) {
+      this.controller = controller;
+      controller.scannedDataStream.listen((scanData) {
+        //print(scanData);
+        if (!qrCodeDetected && scanData.code != null) {
+          setState(() {
+            qrCodeDetected = true;
+            codeController.text = scanData.code!;
+            joinRoom();
+            Navigator.pop(context);
+          });
+        }
+      });
+    }
+
+    openScanModal() {
+      setState(() {
+        qrCodeDetected = false;
+      });
+
+      showModalBottomSheet(
+          backgroundColor: Colors.transparent,
+          context: context,
+          builder: (context) {
+            return Container(
+              margin: EdgeInsets.only(bottom: 30, left: 30, right: 30, top: 5),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Padding(
+                  padding: EdgeInsets.all(30),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Expanded(
+                        flex: 5,
+                        child: QRView(
+                          key: qrKey,
+                          onQRViewCreated: detectQrCode,
+                        ),
+                      ),
+                      PrimaryButton(
+                          text: "Retour",
+                          onPressed: () => Navigator.pop(context)),
+                    ],
+                  )),
+            );
+          });
+    }
+
     return StylePage(
         routeName: ModalRoute.of(context)!.settings.name!,
         backArrow: true,
@@ -71,7 +127,24 @@ class _JoinRoomState extends State<JoinRoom> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               Column(children: [
-                CustomInput(placeholder: "CODE...", controller: codeController),
+                Row(children: [
+                  Expanded(
+                      child: CustomInput(
+                          placeholder: "CODE...", controller: codeController)),
+                  Padding(
+                    padding: EdgeInsets.only(left: 10),
+                    child: ActionButton(
+                        icon: const Icon(
+                          Icons.qr_code_scanner_rounded,
+                          color: Color(0xFFEFF0FF),
+                        ),
+                        color: const Color(0xFF2638DC),
+                        onTap: () {
+                          print("qr scan");
+                          openScanModal();
+                        }),
+                  )
+                ]),
                 TextError(text: value.codeError)
               ]),
               Column(

@@ -35,7 +35,7 @@ class _MenuState extends State<Menu> {
     }));
 
     sockets.add(socket.listen("ROOM_create", (data) {
-      Navigator.pushReplacementNamed(context, '/waitingRoom');
+      Navigator.pushNamed(context, '/waitingRoom');
     }));
     super.initState();
   }

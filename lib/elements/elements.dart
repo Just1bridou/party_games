@@ -44,7 +44,7 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    leaderBoardModal() {
+    leaveGame() {
       showModalBottomSheet(
           backgroundColor: Colors.transparent,
           context: context,
@@ -60,7 +60,7 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      const Expanded(
+                      Expanded(
                         child: PrettyText(
                             text:
                                 "Souhaitez vous retourner à la salle d'attente ?"),
@@ -69,6 +69,43 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
                           text: "Oui",
                           onPressed: () {
                             Navigator.pushNamed(context, '/waitingRoom');
+                          }),
+                      Secondarybutton(
+                          text: "Non",
+                          onPressed: () {
+                            Navigator.pop(context);
+                          }),
+                    ],
+                  )),
+            );
+          });
+    }
+
+    leaveWaitingRoom() {
+      showModalBottomSheet(
+          backgroundColor: Colors.transparent,
+          context: context,
+          builder: (context) {
+            return Container(
+              margin: EdgeInsets.all(30),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Padding(
+                  padding: EdgeInsets.all(30),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Expanded(
+                        child: PrettyText(
+                            text:
+                                "Souhaitez vous quitter la salle d'attente ?"),
+                      ),
+                      PrimaryButton(
+                          text: "Oui",
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/');
                           }),
                       Secondarybutton(
                           text: "Non",
@@ -108,11 +145,16 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
                 : routeName.contains("games")
                     ? IconButton(
                         onPressed: () {
-                          print("back to wr");
-                          leaderBoardModal();
+                          leaveGame();
                         },
                         icon: Icon(Icons.arrow_back, color: Colors.black87))
-                    : Container(),
+                    : routeName.contains("waitingRoom")
+                        ? IconButton(
+                            onPressed: () {
+                              leaveWaitingRoom();
+                            },
+                            icon: Icon(Icons.arrow_back, color: Colors.black87))
+                        : Container(),
       );
     });
   }
@@ -432,9 +474,10 @@ class CustomContainerText extends StatelessWidget {
 }
 
 class PrettyText extends StatefulWidget {
-  const PrettyText({super.key, required this.text});
+  PrettyText({super.key, required this.text, this.alignement, this.color});
   final String text;
-
+  final Alignment? alignement;
+  final Color? color;
   @override
   State<PrettyText> createState() => _PrettyTextState();
 }
@@ -443,10 +486,10 @@ class _PrettyTextState extends State<PrettyText> {
   @override
   Widget build(BuildContext context) {
     return Align(
-        alignment: Alignment.centerLeft,
+        alignment: widget.alignement ?? Alignment.centerLeft,
         child: Text(widget.text,
             style: GoogleFonts.robotoCondensed(
-                textStyle: const TextStyle(color: Color(0xFF3F4053)),
+                textStyle: TextStyle(color: widget.color ?? Color(0xFF3F4053)),
                 fontWeight: FontWeight.w700,
                 fontSize: 20.0)));
   }

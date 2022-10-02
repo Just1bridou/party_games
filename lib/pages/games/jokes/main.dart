@@ -220,7 +220,7 @@ class _JokesState extends State<Jokes> {
                 child: Column(
                   mainAxisSize: MainAxisSize.max,
                   children: [
-                    const PrettyText(text: "Classement"),
+                    PrettyText(text: "Classement"),
                     Expanded(
                         child: ListView.builder(
                             shrinkWrap: true,

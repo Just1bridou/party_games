@@ -15,8 +15,6 @@ class CustomRouter extends StatefulWidget {
 class _CustomRouterState extends State<CustomRouter> {
   @override
   Widget build(BuildContext context) {
-    Provider.of<Store>(context, listen: false).setNContext(context);
-
     return Consumer<WSState>(
       builder: (context, value, child) {
         return StylePage(
